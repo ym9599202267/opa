@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api-gateway
+  template:
+    metadata:
+      labels:
+        app: api-gateway
+    spec:
+      containers:
+      - name: api-gateway
+        image: your-api-gateway-image
+        ports:
+        - containerPort: 8080
+      - name: opa
+        image: openpolicyagent/opa:latest
+        args:
+        - "run"
+        - "--server"
+        - "/policy/policy.rego"
+        volumeMounts:
+        - name: policy-volume
+          mountPath: /policy
+    volumes:
+    - name: policy-volume
+      configMap:
+        name: opa-policy-config

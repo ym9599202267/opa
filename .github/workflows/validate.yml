@@ -1,0 +1,34 @@
+name: Validate Policies and Helm Charts
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  validate:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v3
+
+      - name: Install OPA
+        run: |
+          curl -L -o opa https://openpolicyagent.org/downloads/latest/opa_windows_amd64.exe
+          rename opa_windows_amd64.exe opa.exe
+          move opa.exe C:\Windows\System32\
+
+      - name: Install Helm
+        run: |
+          curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
+      - name: Validate OPA Policy
+        run: |
+          opa eval -i opa/input.json -d opa/policy.rego -d opa/policy_data.json "data.api_validation.allow"
+
+      - name: Validate Helm Values
+        run: |
+          helm lint helm/mychart

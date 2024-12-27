@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: opa-policy-config
+  namespace: default
+data:
+  policy.rego: |
+    package api_validation
+    default allow = false
+    allow {
+        input.api_name == "api1"
+        input.auth_type == "basic"
+    }
